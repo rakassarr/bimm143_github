@@ -1,0 +1,298 @@
+---
+title: "Class 10: Structural Bioinformatics 1"
+author: "Raneem Kassar (PID: A17803411)"
+format: pdf
+---
+
+## Background
+
+The main repository of high-resolution structural data on biomolecules is called the **Protein Data Bank**(PDB).
+
+## PDB Statistics
+
+What in in the PDB in terms of molecule type and structure determination method?
+
+Read a CSV file of current PDB stats from  https://www.rcsb.org/stats/summary
+```{r}
+pdb <- read.csv("Data Export Summary.csv")
+pdb 
+```
+
+
+
+```{r}
+pdb$X.ray
+```
+This print out above is `pdb$X.ray` is "character" not "numeric". Therefore I can't do math with it. We need to fix this...
+
+Two functions that can help here are `sub()` and `as.numeric()` 
+
+```{r}
+# We want to get rid (or sub out) commas:
+x <- pdb$X.ray
+tmp <- sub(",", "", x)
+sum( as.numeric(tmp) )
+```
+We could make a function to do this:
+
+```{r}
+rm.comma <- function(x) {
+  tmp <- sub(",", "", x)
+sum( as.numeric(tmp) )
+}
+```
+
+
+> Q1: What percentage of structures in the PDB are solved by X-Ray and Electron Microscopy.
+
+```{r}
+n.tot  <- rm.comma(pdb$Total)
+n.xray <- rm.comma(pdb$X.ray)
+n.em   <- rm.comma(pdb$EM)
+
+n.xray/n.tot * 100
+n.em/n.tot * 100
+```
+
+We could also use a different import function `read_csv()` for this CSV that speaks American (i.e. deals with commas in numbers in a comma seperated value file).
+
+```{r}
+library(readr)
+
+pdb <- read_csv("Data Export Summary.csv")
+```
+
+```{r}
+n.tot <- (pdb$Total)
+n.xray <- sum(pdb$`X-ray`)
+sum(pdb$`X-ray`) / n.tot
+
+n.xray / n.tot * 100
+n.em / n.tot * 100
+```
+
+```{r}
+pdb$Total[1]
+```
+
+> Q. How many protein structures are in this dataset?
+
+```{r}
+217375/2025556314 * 100
+```
+
+> Q2: What proportion of structures in the PDB are protein?
+
+```{r}
+names(pdb)
+```
+
+
+```{r}
+library(readr)
+
+pdb_stats <- read_csv("Data Export Summary.csv")
+
+protein_rows <- grepl("Protein", pdb_stats$`Molecular Type`)
+
+protein_total <- sum(pdb_stats$Total[protein_rows])
+total_structures <- sum(pdb_stats$Total)
+
+protein_total / total_structures
+protein_total / total_structures * 100
+```
+
+
+The proportion of structure in the PDB that are protein are 98%.
+
+> **Key-point**: We have a very, very small structural coverage of known proteins (~0.1%). Most structures we know about (~80%) come from one method (X-ray crystalography).
+
+## Visualizing PDB data with Mol-star
+
+Main stand alone website with all features is at  https://molstar.org/viewer/
+
+![The HIV-protease enzyme is a homodimer with two chains](1HSG.png)
+
+![Surface display showing the binding cleft site foe the inhibitor drug molecule](1HSG_surf.png)
+
+![Spacefill display of catalytic ASP25 amino acids and binding site water molecule](1HSG_Asp25.png)
+
+# Getting started with the Bio3d package
+
+Bio3D is an R package from CRAN for structural bioinformatics
+
+```{r}
+library(bio3d)
+
+pdb <- read.pdb("1hsg")
+pdb
+```
+
+```{r}
+head(pdb$atom, 5)
+```
+
+There are lots of functions that can work with these `pdb` objects
+
+```{r}
+head ( pdbseq( pdb) )
+```
+
+We can have a quick interactive view of any of these `pdb` objects:
+
+```{r}
+library(bio3dview)
+
+#view.pdb(pdb)
+```
+
+Let's try a custom view
+```{r}
+#view.pdb(pdb, colorScheme="sse",
+#         backgroundColor="black")
+```
+
+> Q. Create a custom view of HIV-Prhighlighting the active site ASP (`resno=25`), the two chains (in your choice of colors) and the ligand all on a custom color background?
+
+
+```{r}
+library(NGLVieweR)
+
+active.site <- atom.select(pdb, resno=25)
+
+#view.pdb(pdb, 
+#         cols= c("red", "blue"),
+#         highlight = active.site, 
+#         highlight.style = "spacefill",
+#         backgroundColor="pink") |>
+#  setRock()
+```
+
+
+## Predict the flexibility of a given structure 
+
+
+Let's do a Normal Mode Analysis (NMA) to predict the flexibility of a give `pdb` object:
+
+```{r}
+adk <- read.pdb("6s36")
+```
+
+A quick structure summary
+```{r}
+adk
+```
+
+
+```{r}
+m <- nma( adk )
+plot(m)
+```
+
+View the results with an interactive structure view:
+```{r}
+#view.nma(m)
+```
+
+Write out the results for viewing in Mol-star:
+
+```{r}
+mktrj(m, file="nma.pdb")
+```
+
+> Q10. Which of the packages above is found only on BioConductor and not CRAN? 
+
+The package found only on BioConductor is "msa."
+
+> Q11. Which of the above packages is not found on BioConductor or CRAN?: 
+
+The above packages that is not found on BioConductor or CRAN is "bio3d#view."
+
+> Q12. True or False? Functions from the pak package can be used to install packages from GitHub and BitBucket? 
+
+True.
+
+## Comparative analysis of the ADK family
+
+
+Our first step is find a sequence for this family. We will use the databse ID "1ake_A" here:
+
+```{r}
+id <- "1ake_A"
+
+aa <- get.seq(id)
+aa
+```
+
+> Q13. How many amino acids are in this sequence, i.e. how long is this sequence? 
+
+There are 214 amino acids in this sequence.
+
+Search for related sequences in the database
+
+```{r}
+#blast <- blast.pdb(aa)
+```
+
+```{r}
+#head(blast$hit.tbl)
+```
+
+```{r}
+#hits <- plot(blast)
+```
+
+```{r}
+hits <- NULL
+hits$pdb.id <- c('1AKE_A','6S36_A','6RZE_A','3HPR_A','1E4V_A','5EJE_A','1E4Y_A','3X2S_A','6HAP_A','6HAM_A','4K46_A','3GMT_A','4PZL_A')
+```
+
+```{r}
+hits$pdb.id
+```
+
+```{r}
+files <-get.pdb(hits$pdb.id, path="pdbs", split=TRUE, gzip=TRUE)
+```
+
+Align and supperpose all these ADK structures
+
+```{r}
+pdbs <- pdbaln(files, fit = TRUE, exefile="msa")
+```
+
+
+```{r}
+pdbs
+```
+
+Quick interactive structural view 
+
+```{r}
+#view.pdbs(pdbs)
+```
+
+PCA of all this structural data (x. y and z atom coordinates)
+
+```{r}
+pc <- pca(pdbs)
+plot(pc)
+```
+
+```{r}
+plot(pc, 1:2)
+```
+
+Interactive view of the PC1 captured structural differences:
+
+```{r}
+#view.pca(pc)
+```
+
+
+```{r}
+mktrj(pc, file="pca.pdb")
+```
+
+
+

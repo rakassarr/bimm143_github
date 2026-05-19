@@ -1,0 +1,197 @@
+---
+title: "Class 11: AlphaFold"
+author: "Raneem Kassar (PID: A17803411)"
+format: pdf
+---
+
+
+```{r}
+library(bio3d)
+
+pdb <- read.pdb("hivpr_dimer_23119/hivpr_dimer_23119_unrelaxed_rank_002_alphafold2_multimer_v3_model_1_seed_000.pdb")
+
+pdb
+```
+
+Make a vector of input PDB file names that we can read into R
+
+```{r}
+pdbfiles <- list.files("hivpr_dimer_23119/", 
+                        pattern = ".pdb",
+                        full.names = TRUE)
+```
+
+```{r}
+pdb <- read.pdb("1hsg")
+```
+
+
+```{r}
+pdbs <- pdbaln(pdbfiles, fit = TRUE, exefile = "msa")
+
+pdbs
+```
+
+```{r}
+rd <- rmsd(pdbs, fit = TRUE)
+
+range(rd)
+```
+
+```{r}
+library(pheatmap)
+
+colnames(rd) <- paste0("m", 1:5)
+rownames(rd) <- paste0("m", 1:5)
+
+pheatmap(rd)
+```
+
+The RMSD heatmap compares similarity between the five AlphaFold models. The lower RMSD values indicate models that are more similar, while higher RMSD values indicate greater  differences between the predicted models.
+
+```{r}
+plotb3(pdbs$b[1,], typ = "l", lwd = 2, sse = pdb,
+       ylab = "pLDDT Score",
+       xlab = "Residue Position")
+
+points(pdbs$b[2,], typ = "l", col = "red")
+points(pdbs$b[3,], typ = "l", col = "blue")
+points(pdbs$b[4,], typ = "l", col = "darkgreen")
+points(pdbs$b[5,], typ = "l", col = "orange")
+
+abline(v = 100, col = "gray")
+```
+This plot shows the pLDDT confidence scores across all five AlphaFold models. The higher PLDDT values indicate higher confidene in the preidcted residue positions.
+
+```{r}
+core <- core.find(pdbs)
+```
+
+```{r}
+core.inds <- print(core, vol = 0.5)
+```
+
+```{r}
+x <- pdbfit(pdbs, core.inds, outpath = "corefit_structures")
+```
+
+The core.find() function helps the structure consistent core regions shared across the five AlphaFold models. These core positions are used with pdbfit() to sperpose the models more accurate.
+
+
+```{r}
+rf <- rmsf(x)
+
+# Plot rf
+plotb3(rf, sse = pdb)
+abline(v = 100, col = "gray", ylab="RMSF")
+```
+This RMSF plot shows how each residue position varies across the fitted AlphaFOLD models., a lower RMSF value indicates residues that are more strucurtrally consistent, while higher values are more flexible.
+
+```{r}
+results_dir <- "hivpr_dimer_23119/"
+```
+
+
+```{r}
+library(jsonlite)
+
+pae_files <- list.files(path = results_dir,
+                        pattern = ".*model.*\\.json",
+                        full.names = TRUE)
+
+pae_files
+```
+
+```{r}
+pae1 <- read_json(pae_files[1], simplifyVector = TRUE)
+pae5 <- read_json(pae_files[5], simplifyVector = TRUE)
+```
+
+```{r}
+attributes(pae1)
+```
+
+```{r}
+head(pae1$plddt)
+```
+
+```{r}
+pae1$max_pae
+pae5$max_pae
+```
+
+
+```{r}
+plot.dmat(pae1$pae, 
+          xlab = "Residue Position (i)",
+          ylab = "Residue Position (j)")
+```
+
+```{r}
+plot.dmat(pae5$pae, 
+          xlab = "Residue Position (i)",
+          ylab = "Residue Position (j)",
+          grid.col = "black",
+          zlim = c(0, 30))
+```
+
+```{r}
+plot.dmat(pae1$pae, 
+          xlab = "Residue Position (i)",
+          ylab = "Residue Position (j)",
+          grid.col = "black",
+          zlim = c(0, 30))
+```
+
+```{r}
+pae2 <- read_json(pae_files[2], simplifyVector=TRUE)
+pae2$max_pae
+```
+
+```{r}
+pae3 <- read_json(pae_files[3], simplifyVector=TRUE)
+pae3$max_pae
+```
+
+```{r}
+pae4 <- read_json(pae_files[4], simplifyVector=TRUE)
+pae4$max_pae
+```
+
+The PAE plots show the predicted allignment error between the rsidue positions in the AlphaFold models, lower PAE indicate higher confidence, and higher values indicate more uncertainity.
+
+```{r}
+aln_file <- list.files(path = results_dir,
+                       pattern = ".a3m$",
+                       full.names = TRUE)
+aln_file
+```
+```{r}
+aln <- read.fasta(aln_file[1], to.upper = TRUE)
+```
+
+```{r}
+dim(aln$ali)
+sim <- conserv(aln)
+```
+
+```{r}
+plotb3(sim[1:99], 
+       sse = trim.pdb(pdb, chain = "A"),
+       ylab = "Conservation Score",
+       xlab = "Residue Position")
+```
+This plot shows the residue conservation across sequence allignment.
+
+```{r}
+con <- consensus(aln, cutoff = 0.9)
+con$seq
+```
+
+```{r}
+m1.pdb <- read.pdb(pdbfiles[1])
+occ <- vec2resno(c(sim[1:99], sim[1:99]), m1.pdb$atom$resno)
+write.pdb(m1.pdb, o = occ, file = "m1_conserv.pdb")
+```
+
+This code maps the conservation scores onto the occupancy column of the ranked AlphaFold.
