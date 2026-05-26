@@ -23,3 +23,4 @@ Class 11: [Structural Bioinformatics (pt2. Focus on new AlphaFold2)](Class11/Cla
 Class 13: [Transcriptomics and the analysis of RNA-Seq data](Class13/Class13.qmd)
 
 Class 14: [RNA-Seq analysis mini-project](Class14/Class14.qmd)
+
