@@ -1,0 +1,47 @@
+# Class 12: Pt2 (Population Analysis)
+Raneem Kassar (PID: A17803411)
+
+> Q13: Read this file into R and determine the sample size for each
+> genotype and their corresponding median expression levels for each of
+> these genotypes.
+
+``` r
+data <- read.table("https://bioboot.github.io/bggn213_W19/class-material/rs8067378_ENSG00000172057.6.txt",
+                   header = TRUE)
+table(data$geno)
+```
+
+
+    A/A A/G G/G 
+    108 233 121 
+
+``` r
+aggregate(exp ~ geno, data = data, median)
+```
+
+      geno      exp
+    1  A/A 31.24847
+    2  A/G 25.06486
+    3  G/G 20.07363
+
+The rs8067378 ORMDL3 expressing file sample sizes were 108 A/A, 233 A/G,
+and 121 G/G. The median expression values were 31.24847 for A/A,
+25.06486 for A/G, and 20.07363 for G/G.
+
+> Q14: Generate a boxplot with a box per genotype, what could you infer
+> from the relative expression value between A/A and G/G displayed in
+> this plot? Does the SNP effect the expression of ORMDL3?
+
+``` r
+boxplot(exp ~ geno,
+        data = data,
+        xlab = "Genotype",
+        ylab = "ORMDL3 Expression",
+        main = "ORMDL3 Expression by rs8067378 Genotype")
+```
+
+![](Class12_files/figure-commonmark/unnamed-chunk-2-1.png)
+
+Yes, rs8067378 appears to affect ORMDL3 expression because individuals
+with the G/G genotype has lower ORMDL3 expression than invidiuals with
+A/A genotype.

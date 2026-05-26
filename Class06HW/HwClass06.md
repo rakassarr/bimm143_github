@@ -1,0 +1,54 @@
+# Assigment Hw 06
+Raneem Kassar (PID:A17803411)
+
+**Q6.** How would you generalize the original code above to work with
+any set of input protein structures?
+
+``` r
+library(bio3d)
+```
+
+**Documentation#:** \# Inputs: \# pdb_id = PDB identifier for the
+protein structure
+
+# What the function will perform:
+
+# Reads a PDB structure then it trims it to the selected chain and atom type,
+
+# Extracts the B-factors and plots them.
+
+# How to use the function:
+
+# Call plot_protein(“4AKE”) with a PDB ID to generate a B-factor plot.
+
+# Output:
+
+# A B-factor plot for the protein and the B-factor values.
+
+``` r
+plot_protein <- function(pdb_id) {
+  s <- read.pdb(pdb_id)
+  s.chainA <- trim.pdb(s, chain = "A", elety = "CA")
+  s.b <- s.chainA$atom$b
+  plotb3(s.b, sse = s.chainA, typ = "l", ylab = "Bfactor")
+  return(s.b)
+}
+```
+
+``` r
+pdb_ids <- c("4AKE", "1AKE", "1E4Y")
+invisible(lapply(pdb_ids, plot_protein))
+```
+
+      Note: Accessing on-line PDB file
+
+![](HwClass06_files/figure-commonmark/unnamed-chunk-3-1.png)
+
+      Note: Accessing on-line PDB file
+       PDB has ALT records, taking A only, rm.alt=TRUE
+
+![](HwClass06_files/figure-commonmark/unnamed-chunk-3-2.png)
+
+      Note: Accessing on-line PDB file
+
+![](HwClass06_files/figure-commonmark/unnamed-chunk-3-3.png)

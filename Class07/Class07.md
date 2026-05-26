@@ -54,16 +54,16 @@ km
 
     Cluster means:
               x         y
-    1 -3.037106  3.062609
-    2  3.062609 -3.037106
+    1  3.247133 -2.781846
+    2 -2.781846  3.247133
 
     Clustering vector:
-     [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2
-    [39] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+     [1] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1
+    [39] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 
     Within cluster sum of squares by cluster:
-    [1] 75.86521 75.86521
-     (between_SS / total_SS =  88.0 %)
+    [1] 60.0876 60.0876
+     (between_SS / total_SS =  90.1 %)
 
     Available components:
 
@@ -96,8 +96,8 @@ km$size
 km$cluster
 ```
 
-     [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2
-    [39] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+     [1] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1
+    [39] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 
 > Q. What “component of your result object details cluster center?
 
@@ -106,8 +106,8 @@ km$centers
 ```
 
               x         y
-    1 -3.037106  3.062609
-    2  3.062609 -3.037106
+    1  3.247133 -2.781846
+    2 -2.781846  3.247133
 
 > Q. plot `z` colored by the kmeans cluster assignment and add cluster
 > centers as blue points
@@ -202,8 +202,8 @@ cutree(hc, h=8)
 cutree(hc, k=4)
 ```
 
-     [1] 1 2 2 2 1 1 2 2 2 2 2 1 1 2 2 2 1 2 1 1 2 2 2 1 1 1 2 2 2 2 3 3 3 3 4 4 4 3
-    [39] 3 3 4 4 3 4 3 3 3 4 4 3 3 3 3 3 4 4 3 3 3 4
+     [1] 1 1 1 1 1 1 2 1 1 1 2 1 1 1 1 1 2 1 1 2 1 1 1 1 2 1 2 1 1 1 3 3 3 4 3 4 3 3
+    [39] 3 3 4 3 3 4 3 3 3 3 3 4 3 3 3 4 3 3 3 3 3 3
 
 > Q. Make a plot of `z` with your hclust results (i.e. colored by
 > cluster membership)
