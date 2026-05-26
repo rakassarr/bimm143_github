@@ -4,10 +4,10 @@ My classwork from [BIMM143 at UC San Diego Spring 2026](https://bioboot.github.i
 
 ## Index of classes
 
-Class 4: [Introduction to R]()
+Class 4: [Introduction to R](class04/class04.pdf)
 
-Class 5: [Data viz with ggplot2]()
+Class 5: [Data viz with ggplot2](class05/class05.qmd)
 
-Class 6 [R functions]()
+Class 6 [R functions](class06/class06.pdf)
 
 Class 7 [something else]()
